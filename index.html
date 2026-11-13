@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payora</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px 18px;
+      font-family: Arial, sans-serif;
+      background: #101a35;
+      color: white;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #f5d77a, #b88624);
+      color: #101a35;
+      display: grid;
+      place-items: center;
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    h1 { margin: 0; font-size: 25px; }
+    .subtitle { color: #aab7d3; font-size: 13px; margin-top: 5px; }
+
+    .balance {
+      background: linear-gradient(135deg, #244b8d, #172b55);
+      border: 1px solid #4568a0;
+      padding: 24px;
+      border-radius: 20px;
+      margin-bottom: 22px;
+    }
+
+    .balance-label { color: #c5d3ed; font-size: 14px; }
+    .amount { font-size: 34px; font-weight: bold; margin-top: 12px; }
+    .coin { color: #f5d77a; }
+
+    .section-title {
+      font-size: 18px;
+      margin: 24px 0 14px;
+    }
+
+    .task {
+      background: #1c2948;
+      padding: 17px;
+      border-radius: 15px;
+      margin-bottom: 12px;
+    }
+
+    .task-title { font-weight: bold; }
+    .task-desc { color: #aab7d3; font-size: 13px; margin-top: 7px; }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 13px;
+      background: #e7bd58;
+      color: #17213a;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .note {
+      text-align: center;
+      color: #8796b5;
+      font-size: 12px;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">P</div>
+    <div>
+      <h1>Payora</h1>
+      <div class="subtitle">Your rewards journey starts here</div>
+    </div>
+  </div>
+
+  <div class="balance">
+    <div class="balance-label">Your Balance</div>
+    <div class="amount"><span class="coin">🪙</span> 0 Coins</div>
+  </div>
+
+  <h2 class="section-title">Earn Rewards</h2>
+
+  <div class="task">
+    <div class="task-title">📺 Watch Advertisements</div>
+    <div class="task-desc">Complete available sponsored activities.</div>
+    <button onclick="showMessage()">Start Earning</button>
+  </div>
+
+  <div class="task">
+    <div class="task-title">🎁 Daily Rewards</div>
+    <div class="task-desc">Check back for new reward opportunities.</div>
+    <button onclick="showMessage()">Coming Soon</button>
+  </div>
+
+  <div class="note">Payora © 2026</div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    function showMessage() {
+      if (tg) {
+        tg.showAlert("Fitur sedang dalam tahap pengujian.");
+      } else {
+        alert("Fitur sedang dalam tahap pengujian.");
+      }
+    }
+  </script>
+
+</body>
+</html>
