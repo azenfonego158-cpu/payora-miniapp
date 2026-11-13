@@ -173,7 +173,8 @@
     </div>
 
     <div class="amount">
-      <span class="coin">🪙</span> 0 Coins
+      <span class="coin">🪙</span>
+      <span id="balanceAmount">0 Coins</span>
     </div>
 
     <div class="test-label">
@@ -251,6 +252,90 @@
 
 
     // =================================
+    // PAYORA API CONFIGURATION
+    // =================================
+
+    const API_URL =
+      "https://payora-api.dad206887.workers.dev";
+
+
+    // =================================
+    // LOAD USER BALANCE
+    // =================================
+
+    async function loadBalance() {
+
+      const balanceElement =
+        document.getElementById("balanceAmount");
+
+      if (!tg || !tg.initData) {
+
+        balanceElement.textContent =
+          "Buka melalui Telegram";
+
+        console.warn(
+          "Telegram initData tidak tersedia."
+        );
+
+        return;
+
+      }
+
+      try {
+
+        const response = await fetch(
+          API_URL + "/api/balance",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              initData: tg.initData
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || data.ok !== true) {
+          throw new Error(
+            data.error || "Gagal mengambil saldo."
+          );
+        }
+
+        const coins = Number(data.coins);
+
+        if (!Number.isFinite(coins)) {
+          throw new Error("Format saldo tidak valid.");
+        }
+
+        balanceElement.textContent =
+          coins.toLocaleString("id-ID") + " Coins";
+
+        console.log(
+          "Payora balance loaded:",
+          coins
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Balance API error:",
+          error
+        );
+
+        balanceElement.textContent =
+          "Gagal memuat saldo";
+
+      }
+
+    }
+
+
+    // =================================
     // ADSUN CONFIGURATION
     // =================================
 
@@ -322,32 +407,20 @@
         });
 
 
-        // =================================
         // ADSUN EVENT LISTENERS
-        // =================================
 
         const eventNames = [
 
           "onStart",
-
           "onSkip",
-
           "onReward",
-
           "onComplete",
-
           "onProgress",
-
           "onShowNextBanner",
-
           "onBannerNotFound",
-
           "onNonStopShow",
-
           "onTooLongSession",
-
           "onNotSuitable",
-
           "onError"
 
         ];
@@ -450,7 +523,7 @@
           );
 
           showAlert(
-            "Iklan percobaan selesai. Saldo belum ditambahkan."
+            "Iklan percobaan selesai. Saldo akan mengikuti data server."
           );
 
         } else {
@@ -464,6 +537,10 @@
           );
 
         }
+
+        // Ambil ulang saldo dari server.
+        // Dalam DEBUG MODE, saldo tidak otomatis bertambah.
+        await loadBalance();
 
 
       } catch (error) {
@@ -513,7 +590,13 @@
 
     window.addEventListener(
       "load",
-      initializeAdsun
+      () => {
+
+        loadBalance();
+
+        initializeAdsun();
+
+      }
     );
 
   </script>
