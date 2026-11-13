@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -131,6 +130,7 @@
       font-size: 12px;
       text-align: center;
       line-height: 1.5;
+      overflow-wrap: anywhere;
     }
 
     .note {
@@ -174,7 +174,7 @@
 
     <div class="amount">
       <span class="coin">🪙</span>
-      <span id="balanceAmount">0 Coins</span>
+      <span id="balanceAmount">Memuat saldo...</span>
     </div>
 
     <div class="test-label">
@@ -209,7 +209,7 @@
       class="status"
       id="adStatus"
     >
-      Adsun: Menunggu pengujian
+      Menghubungkan ke server...
     </div>
 
   </div>
@@ -260,93 +260,6 @@
 
 
     // =================================
-    // LOAD USER BALANCE
-    // =================================
-
-    async function loadBalance() {
-
-      const balanceElement =
-        document.getElementById("balanceAmount");
-
-      if (!tg || !tg.initData) {
-
-        balanceElement.textContent =
-          "Buka melalui Telegram";
-
-        console.warn(
-          "Telegram initData tidak tersedia."
-        );
-
-        return;
-
-      }
-
-      try {
-
-        const response = await fetch(
-          API_URL + "/api/balance",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-              initData: tg.initData
-            })
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || data.ok !== true) {
-          throw new Error(
-            data.error || "Gagal mengambil saldo."
-          );
-        }
-
-        const coins = Number(data.coins);
-
-        if (!Number.isFinite(coins)) {
-          throw new Error("Format saldo tidak valid.");
-        }
-
-        balanceElement.textContent =
-          coins.toLocaleString("id-ID") + " Coins";
-
-        console.log(
-          "Payora balance loaded:",
-          coins
-        );
-
-      } catch (error) {
-
-        console.error(
-          "Balance API error:",
-          error
-        );
-
-        balanceElement.textContent =
-          "Gagal memuat saldo";
-
-      }
-
-    }
-
-
-    // =================================
-    // ADSUN CONFIGURATION
-    // =================================
-
-    let adController = null;
-
-    const BLOCK_ID = "50201";
-
-    const DEBUG_MODE = true;
-
-
-    // =================================
     // STATUS DISPLAY
     // =================================
 
@@ -376,6 +289,158 @@
 
 
     // =================================
+    // LOAD USER BALANCE
+    // =================================
+
+    async function loadBalance() {
+
+      const balanceElement =
+        document.getElementById("balanceAmount");
+
+      if (!tg || !tg.initData) {
+
+        balanceElement.textContent =
+          "Buka melalui Telegram";
+
+        updateStatus(
+          "Telegram initData tidak tersedia."
+        );
+
+        return;
+
+      }
+
+      updateStatus(
+        "Menghubungkan ke Payora API..."
+      );
+
+      try {
+
+        const response = await fetch(
+          API_URL + "/api/balance",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              initData: tg.initData
+            })
+          }
+        );
+
+
+        // BACA RESPONS SERVER
+
+        const responseText =
+          await response.text();
+
+        console.log(
+          "Balance HTTP status:",
+          response.status
+        );
+
+        console.log(
+          "Balance response:",
+          responseText
+        );
+
+
+        // PERIKSA FORMAT JSON
+
+        let data;
+
+        try {
+
+          data = JSON.parse(responseText);
+
+        } catch {
+
+          throw new Error(
+            "Server bukan JSON: " +
+            responseText.substring(0, 150)
+          );
+
+        }
+
+
+        // PERIKSA STATUS SERVER
+
+        if (!response.ok || data.ok !== true) {
+
+          throw new Error(
+            "HTTP " +
+            response.status +
+            ": " +
+            (data.error || "Permintaan gagal")
+          );
+
+        }
+
+
+        // PERIKSA SALDO
+
+        const coins = Number(data.coins);
+
+        if (!Number.isFinite(coins)) {
+
+          throw new Error(
+            "Format saldo tidak valid."
+          );
+
+        }
+
+
+        // TAMPILKAN SALDO
+
+        balanceElement.textContent =
+          coins.toLocaleString("id-ID") +
+          " Coins";
+
+        updateStatus(
+          "Saldo berhasil dimuat dari server."
+        );
+
+        console.log(
+          "Payora balance:",
+          coins
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Balance API error:",
+          error
+        );
+
+        balanceElement.textContent =
+          "Gagal memuat saldo";
+
+        updateStatus(
+          "Kesalahan saldo: " +
+          error.message
+        );
+
+      }
+
+    }
+
+
+    // =================================
+    // ADSUN CONFIGURATION
+    // =================================
+
+    let adController = null;
+
+    const BLOCK_ID = "50201";
+
+    const DEBUG_MODE = true;
+
+
+    // =================================
     // INITIALIZE ADSUN
     // =================================
 
@@ -394,7 +459,9 @@
           );
 
           return;
+
         }
+
 
         adController = window.Adsun.init({
 
@@ -455,6 +522,7 @@
         console.log(
           "Adsun initialized successfully."
         );
+
 
       } catch (error) {
 
@@ -523,7 +591,7 @@
           );
 
           showAlert(
-            "Iklan percobaan selesai. Saldo akan mengikuti data server."
+            "Iklan percobaan selesai. Saldo belum otomatis bertambah dalam mode pengujian."
           );
 
         } else {
@@ -538,8 +606,9 @@
 
         }
 
-        // Ambil ulang saldo dari server.
-        // Dalam DEBUG MODE, saldo tidak otomatis bertambah.
+
+        // AMBIL ULANG SALDO DARI SERVER
+
         await loadBalance();
 
 
