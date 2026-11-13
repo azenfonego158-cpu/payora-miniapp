@@ -1,12 +1,23 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101a35">
+
   <title>Payora</title>
+
+  <!-- Telegram Mini App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Adsun SDK -->
+  <script src="https://api.adsun.io/sdk.js"></script>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -35,8 +46,16 @@
       font-weight: bold;
     }
 
-    h1 { margin: 0; font-size: 25px; }
-    .subtitle { color: #aab7d3; font-size: 13px; margin-top: 5px; }
+    h1 {
+      margin: 0;
+      font-size: 25px;
+    }
+
+    .subtitle {
+      color: #aab7d3;
+      font-size: 13px;
+      margin-top: 5px;
+    }
 
     .balance {
       background: linear-gradient(135deg, #244b8d, #172b55);
@@ -46,9 +65,20 @@
       margin-bottom: 22px;
     }
 
-    .balance-label { color: #c5d3ed; font-size: 14px; }
-    .amount { font-size: 34px; font-weight: bold; margin-top: 12px; }
-    .coin { color: #f5d77a; }
+    .balance-label {
+      color: #c5d3ed;
+      font-size: 14px;
+    }
+
+    .amount {
+      font-size: 34px;
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    .coin {
+      color: #f5d77a;
+    }
 
     .section-title {
       font-size: 18px;
@@ -62,8 +92,16 @@
       margin-bottom: 12px;
     }
 
-    .task-title { font-weight: bold; }
-    .task-desc { color: #aab7d3; font-size: 13px; margin-top: 7px; }
+    .task-title {
+      font-weight: bold;
+    }
+
+    .task-desc {
+      color: #aab7d3;
+      font-size: 13px;
+      margin-top: 7px;
+      line-height: 1.5;
+    }
 
     button {
       width: 100%;
@@ -75,6 +113,24 @@
       color: #17213a;
       font-size: 15px;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      background: #17213a;
+      border: 1px solid #344667;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 14px;
+      color: #c5d3ed;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.5;
     }
 
     .note {
@@ -83,40 +139,109 @@
       font-size: 12px;
       margin-top: 25px;
     }
+
+    .test-label {
+      display: inline-block;
+      background: #493b1d;
+      color: #f5d77a;
+      padding: 5px 9px;
+      border-radius: 7px;
+      font-size: 11px;
+      margin-top: 10px;
+    }
   </style>
 </head>
+
 <body>
 
+  <!-- HEADER -->
   <div class="header">
     <div class="logo">P</div>
+
     <div>
       <h1>Payora</h1>
-      <div class="subtitle">Your rewards journey starts here</div>
+      <div class="subtitle">
+        Your rewards journey starts here
+      </div>
     </div>
   </div>
 
+  <!-- BALANCE -->
   <div class="balance">
-    <div class="balance-label">Your Balance</div>
-    <div class="amount"><span class="coin">🪙</span> 0 Coins</div>
+    <div class="balance-label">
+      Your Balance
+    </div>
+
+    <div class="amount">
+      <span class="coin">🪙</span> 0 Coins
+    </div>
+
+    <div class="test-label">
+      TEST MODE
+    </div>
   </div>
 
-  <h2 class="section-title">Earn Rewards</h2>
+  <!-- EARN REWARDS -->
+  <h2 class="section-title">
+    Earn Rewards
+  </h2>
 
   <div class="task">
-    <div class="task-title">📺 Watch Advertisements</div>
-    <div class="task-desc">Complete available sponsored activities.</div>
-    <button onclick="showMessage()">Start Earning</button>
+
+    <div class="task-title">
+      📺 Watch Advertisements
+    </div>
+
+    <div class="task-desc">
+      Watch available advertisements and
+      complete sponsored activities.
+    </div>
+
+    <button
+      id="watchButton"
+      onclick="watchAd()"
+    >
+      Start Earning
+    </button>
+
+    <div
+      class="status"
+      id="adStatus"
+    >
+      Adsun: Menunggu pengujian
+    </div>
+
   </div>
 
+  <!-- DAILY REWARDS -->
   <div class="task">
-    <div class="task-title">🎁 Daily Rewards</div>
-    <div class="task-desc">Check back for new reward opportunities.</div>
-    <button onclick="showMessage()">Coming Soon</button>
+
+    <div class="task-title">
+      🎁 Daily Rewards
+    </div>
+
+    <div class="task-desc">
+      Check back for new reward opportunities.
+    </div>
+
+    <button onclick="showMessage()">
+      Coming Soon
+    </button>
+
   </div>
 
-  <div class="note">Payora © 2026</div>
+  <div class="note">
+    Payora © 2026
+  </div>
 
+
+  <!-- JAVASCRIPT -->
   <script>
+
+    // =================================
+    // TELEGRAM MINI APP
+    // =================================
+
     const tg = window.Telegram?.WebApp;
 
     if (tg) {
@@ -124,13 +249,273 @@
       tg.expand();
     }
 
-    function showMessage() {
-      if (tg) {
-        tg.showAlert("Fitur sedang dalam tahap pengujian.");
-      } else {
-        alert("Fitur sedang dalam tahap pengujian.");
-      }
+
+    // =================================
+    // ADSUN CONFIGURATION
+    // =================================
+
+    let adController = null;
+
+    const BLOCK_ID = "50201";
+
+    const DEBUG_MODE = true;
+
+
+    // =================================
+    // STATUS DISPLAY
+    // =================================
+
+    function updateStatus(message) {
+
+      const status =
+        document.getElementById("adStatus");
+
+      status.textContent = message;
+
     }
+
+
+    // =================================
+    // ALERT
+    // =================================
+
+    function showAlert(message) {
+
+      if (tg) {
+        tg.showAlert(message);
+      } else {
+        alert(message);
+      }
+
+    }
+
+
+    // =================================
+    // INITIALIZE ADSUN
+    // =================================
+
+    function initializeAdsun() {
+
+      try {
+
+        if (!window.Adsun) {
+
+          updateStatus(
+            "Adsun SDK belum tersedia."
+          );
+
+          console.error(
+            "Adsun SDK not loaded."
+          );
+
+          return;
+        }
+
+        adController = window.Adsun.init({
+
+          blockId: BLOCK_ID,
+
+          debug: DEBUG_MODE,
+
+          debugConsole: true
+
+        });
+
+
+        // =================================
+        // ADSUN EVENT LISTENERS
+        // =================================
+
+        const eventNames = [
+
+          "onStart",
+
+          "onSkip",
+
+          "onReward",
+
+          "onComplete",
+
+          "onProgress",
+
+          "onShowNextBanner",
+
+          "onBannerNotFound",
+
+          "onNonStopShow",
+
+          "onTooLongSession",
+
+          "onNotSuitable",
+
+          "onError"
+
+        ];
+
+
+        eventNames.forEach((name) => {
+
+          adController.addEventListener(
+            name,
+            (data) => {
+
+              console.log(
+                "[Adsun Event]",
+                name,
+                data
+              );
+
+              updateStatus(
+                "Adsun Event: " + name
+              );
+
+            }
+          );
+
+        });
+
+
+        updateStatus(
+          "Adsun siap untuk pengujian."
+        );
+
+        console.log(
+          "Adsun initialized successfully."
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Adsun initialization error:",
+          error
+        );
+
+        updateStatus(
+          "Gagal menginisialisasi Adsun."
+        );
+
+      }
+
+    }
+
+
+    // =================================
+    // WATCH ADVERTISEMENT
+    // =================================
+
+    async function watchAd() {
+
+      const button =
+        document.getElementById("watchButton");
+
+
+      if (!adController) {
+
+        showAlert(
+          "Adsun belum siap. Periksa koneksi dan coba lagi."
+        );
+
+        return;
+
+      }
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Loading Advertisement...";
+
+
+      updateStatus(
+        "Meminta iklan dari Adsun..."
+      );
+
+
+      try {
+
+        const result =
+          await adController.show();
+
+
+        console.log(
+          "[Adsun Result]",
+          result
+        );
+
+
+        if (result?.done === true) {
+
+          updateStatus(
+            "Iklan percobaan selesai."
+          );
+
+          showAlert(
+            "Iklan percobaan selesai. Saldo belum ditambahkan."
+          );
+
+        } else {
+
+          updateStatus(
+            "Proses iklan selesai. Periksa hasil pengujian."
+          );
+
+          showAlert(
+            "Proses iklan telah selesai."
+          );
+
+        }
+
+
+      } catch (error) {
+
+        console.error(
+          "[Adsun Error]",
+          error
+        );
+
+        updateStatus(
+          "Iklan tidak tersedia atau terjadi kesalahan."
+        );
+
+        showAlert(
+          "Iklan tidak tersedia atau terjadi kesalahan."
+        );
+
+
+      } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+          "Start Earning";
+
+      }
+
+    }
+
+
+    // =================================
+    // DAILY REWARDS PLACEHOLDER
+    // =================================
+
+    function showMessage() {
+
+      showAlert(
+        "Fitur sedang dalam tahap pengujian."
+      );
+
+    }
+
+
+    // =================================
+    // START APPLICATION
+    // =================================
+
+    window.addEventListener(
+      "load",
+      initializeAdsun
+    );
+
   </script>
 
 </body>
